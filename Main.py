@@ -1,4 +1,5 @@
 import requests
+import os
 #  документация https://yandex.ru/dev/translate/doc/dg/reference/translate-docpage/
 
 API_KEY = 'trnsl.1.1.20190712T081241Z.0309348472c8719d.0efdbc7ba1c507292080e3fbffe4427f7ce9a9f0'
@@ -17,25 +18,29 @@ def translate_it(text, to_lang):
     :return:
     """
 
-    file_name = input("Введите имя файла для перевода из имеющихся: ")
+    start_path = input("Укажите путь к файлу для перевода: ")
+    file_name = input("Введите имя файла для перевода: ")
+    from_language = input("Укажите язык, с которого перевести, кодом (например, английский - en, немецкий - de, испанский - es, французский - fr, русский - ru): ")
+    to_language = input(
+        "Укажите язык, на который перевести, кодом (например, английский - en, немецкий - de, испанский - es, французский - fr, русский - ru): ")
+    new_file_name = file_name[:2] + f"-{to_language}." + file_name[3:]
 
-    new_file_name = file_name[:2] + "-RU." + file_name[3:]
-
-    with open(file_name, encoding="utf-8") as f:
+    with open(os.path.join(start_path, file_name), encoding="utf-8") as f:
         data = f.read()
         # print(data)
 
     params = {
         'key': API_KEY,
         'text': data,
-        'lang': 'ru',
+        'lang': f"{from_language}-{to_language}",
     }
 
     response = requests.get(URL, params=params)
     json_ = response.json()
 
+    end_path = input("Укажите путь для сохранения файла с переводом: ")
 
-    with open(new_file_name, 'w', encoding="utf-8") as f:
+    with open(os.path.join(end_path, new_file_name), 'w', encoding="utf-8") as f:
         b = json_['text']
         for element in b:
             f.write(element)
